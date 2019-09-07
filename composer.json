@@ -1,5 +1,5 @@
 {
-	"name": "typo3/cms-fluid",
+	"name": "namelesscoder/cms-fluid",
 	"type": "typo3-cms-framework",
 	"description": "Fluid is a next-generation templating engine which makes the life of extension authors a lot easier!",
 	"homepage": "https://typo3.org",
@@ -12,17 +12,24 @@
 	"config": {
 		"sort-packages": true
 	},
+	"repositories": {
+		"typo3/fluid-engine": {
+			"type": "path",
+			"url": "/Users/claus/Repositories/fluidtypo3/fluidtypo3-docker-dev/vendor/typo3fluid/fluid"
+		}
+	},
 	"require": {
 		"php": "^7.0 <7.4",
 		"typo3/cms-core": "8.7.*@dev",
 		"typo3/cms-extbase": "8.7.*@dev",
-		"typo3fluid/fluid": "^2.5.5"
+		"typo3/fluid-engine": "dev-master"
 	},
 	"conflict": {
 		"typo3/cms": "*"
 	},
 	"replace": {
-		"fluid": "*"
+		"fluid": "*",
+		"typo3/cms-fluid": "*"
 	},
 	"extra": {
 		"typo3/cms": {

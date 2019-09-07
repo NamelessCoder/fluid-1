@@ -18,6 +18,9 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3Fluid\Fluid\Component\ComponentInterface;
+use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use \TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
 
 /**
  * Class ViewHelperResolver
@@ -54,10 +57,14 @@ class ViewHelperResolver extends \TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperRes
      * Loads namespaces defined in global TYPO3 configuration. Overlays `f:`
      * with `f:debug:` when Fluid debugging is enabled in the admin panel,
      * causing debugging-specific ViewHelpers to be resolved in that case.
+     *
+     * @param RenderingContextInterface $renderingContext
      */
-    public function __construct()
+    public function __construct(RenderingContextInterface $renderingContext)
     {
+        parent::__construct($renderingContext);
         $this->namespaces = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'];
+        $this->atoms = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['atoms'];
         if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_FE && $this->getBackendUser() instanceof BackendUserAuthentication) {
             $configuration = $this->getBackendUser()->uc['TSFE_adminConfig'];
             if (isset($configuration['preview_showFluidDebug']) && $configuration['preview_showFluidDebug']) {
@@ -71,9 +78,9 @@ class ViewHelperResolver extends \TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperRes
 
     /**
      * @param string $viewHelperClassName
-     * @return \TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface
+     * @return ComponentInterface
      */
-    public function createViewHelperInstanceFromClassName($viewHelperClassName)
+    public function createViewHelperInstanceFromClassName(string $viewHelperClassName): ComponentInterface
     {
         return $this->getObjectManager()->get($viewHelperClassName);
     }

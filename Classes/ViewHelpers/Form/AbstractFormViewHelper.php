@@ -48,10 +48,10 @@ abstract class AbstractFormViewHelper extends AbstractTagBasedViewHelper
         if ($fieldName === null || $fieldName === '') {
             return '';
         }
-        if (!$this->viewHelperVariableContainer->exists(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix')) {
+        if (!$this->renderingContext->getViewHelperVariableContainer()->exists(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix')) {
             return $fieldName;
         }
-        $fieldNamePrefix = (string)$this->viewHelperVariableContainer->get(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix');
+        $fieldNamePrefix = (string)$this->renderingContext->getViewHelperVariableContainer()->get(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix');
         if ($fieldNamePrefix === '') {
             return $fieldName;
         }
@@ -100,12 +100,12 @@ abstract class AbstractFormViewHelper extends AbstractTagBasedViewHelper
      */
     protected function registerFieldNameForFormTokenGeneration($fieldName)
     {
-        if ($this->viewHelperVariableContainer->exists(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'formFieldNames')) {
-            $formFieldNames = $this->viewHelperVariableContainer->get(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'formFieldNames');
+        if ($this->renderingContext->getViewHelperVariableContainer()->exists(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'formFieldNames')) {
+            $formFieldNames = $this->renderingContext->getViewHelperVariableContainer()->get(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'formFieldNames');
         } else {
             $formFieldNames = [];
         }
         $formFieldNames[] = $fieldName;
-        $this->viewHelperVariableContainer->addOrUpdate(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'formFieldNames', $formFieldNames);
+        $this->renderingContext->getViewHelperVariableContainer()->addOrUpdate(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'formFieldNames', $formFieldNames);
     }
 }

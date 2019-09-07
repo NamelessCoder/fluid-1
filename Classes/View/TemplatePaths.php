@@ -71,26 +71,13 @@ class TemplatePaths extends \TYPO3Fluid\Fluid\View\TemplatePaths
      */
     protected function getContextSpecificViewConfiguration($extensionKey)
     {
-        if (empty($extensionKey)) {
-            return [];
-        }
-
-        $resources = $this->getExtensionPrivateResourcesPath($extensionKey);
-        $paths = [
-            self::CONFIG_TEMPLATEROOTPATHS => [$resources . 'Templates/'],
-            self::CONFIG_PARTIALROOTPATHS => [$resources . 'Partials/'],
-            self::CONFIG_LAYOUTROOTPATHS => [$resources . 'Layouts/']
+        $systemPaths = [];
+        $configuredPaths = [
+            self::CONFIG_TEMPLATEROOTPATHS => $this->templateRootPaths,
+            self::CONFIG_PARTIALROOTPATHS => $this->partialRootPaths,
+            self::CONFIG_LAYOUTROOTPATHS => $this->layoutRootPaths,
         ];
-
-        $configuredPaths = [];
-        if (!empty($this->templateRootPaths) || !empty($this->partialRootPaths) || !empty($this->layoutRootPaths)) {
-            // The view was configured already
-            $configuredPaths = [
-                self::CONFIG_TEMPLATEROOTPATHS => $this->templateRootPaths,
-                self::CONFIG_PARTIALROOTPATHS => $this->partialRootPaths,
-                self::CONFIG_LAYOUTROOTPATHS => $this->layoutRootPaths,
-            ];
-        } else {
+        if (!empty($extensionKey)) {
             $typoScript = (array)$this->getConfigurationManager()->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
             $signature = str_replace('_', '', $extensionKey);
             if ($this->isBackendMode() && isset($typoScript['module.']['tx_' . $signature . '.']['view.'])) {
@@ -100,19 +87,73 @@ class TemplatePaths extends \TYPO3Fluid\Fluid\View\TemplatePaths
                 $configuredPaths = (array)$typoScript['plugin.']['tx_' . $signature . '.']['view.'];
                 $configuredPaths = GeneralUtility::removeDotsFromTS($configuredPaths);
             }
+            $resources = $this->getExtensionPrivateResourcesPath($extensionKey);
+            $systemPaths = [
+                self::CONFIG_TEMPLATEROOTPATHS => [$resources . 'Templates/'],
+                self::CONFIG_PARTIALROOTPATHS => [$resources . 'Partials/'],
+                self::CONFIG_LAYOUTROOTPATHS => [$resources . 'Layouts/']
+            ];
         }
 
-        if (empty($configuredPaths)) {
-            return $paths;
-        }
+        // Create a set of paths consisting of defaults plus local plus globally defined paths, with local overriding global and default.
+        $configuredPaths = array_merge_recursive(
+            $systemPaths,
+            static::getGlobalConfiguredPaths($extensionKey),
+            $configuredPaths
+        );
 
-        foreach ($paths as $name => $defaultPaths) {
+        foreach ($systemPaths as $name => $defaultPaths) {
             if (!empty($configuredPaths[$name])) {
-                $paths[$name] = array_merge($defaultPaths, ArrayUtility::sortArrayWithIntegerKeys((array)$configuredPaths[$name]));
+                $systemPaths[$name] = array_merge($defaultPaths, ArrayUtility::sortArrayWithIntegerKeys((array)$configuredPaths[$name]));
             }
         }
 
-        return $paths;
+        return array_map('array_filter', $systemPaths);
+    }
+
+    /**
+     * Temporary public interface to load all globally configured paths,
+     * reducing code duplication. Called from Extbase's ConfigurationManager
+     * when determining View paths. Returns a combined set of paths where the
+     * more specific paths overrule the lower-specificity ones. For example,
+     * if paths are defined for a specific plugin then will be the top priority,
+     * followed by paths for the extension and finally global paths with the
+     * lowest possible priority.
+     *
+     * History / future:
+     *
+     * - Extbase view configuration is resolved by the ConfigurationManager
+     *   and forcibly set through public setter methods directly on the
+     *   view, which then delegates to TemplatePaths.
+     * - This makes TemplatePaths NOT resolve this view configuration
+     *   internally, instead using the defined paths.
+     * - In the future this should be homogenised to have a single place
+     *   where template path configurations are analysed - which should
+     *   be in THIS class.
+     * - That means the usage in Extbase's ConfigurationManager, as well
+     *   as the processing in ActionController, can be deprecated and removed.
+     * - When $this->getContextSpecificViewConfiguration is refactored to take
+     *   over what ConfigurationManager does today, it will need a second
+     *   argument to identify the plugin name context variable.
+     *
+     * See:
+     *
+     * - \TYPO3\CMS\Extbase\Mvc\Controller\ActionController::setViewConfiguration
+     * - \TYPO3\CMS\Extbase\Mvc\Controller\ActionController::getViewProperty
+     * - \TYPO3\CMS\Extbase\Configuration\AbstractConfigurationManager::getExtbaseConfiguration
+     *
+     * @param string|null $extensionName
+     * @param string|null $pluginName
+     * @return array
+     * @internal
+     */
+    public static function getGlobalConfiguredPaths(?string $extensionName = null, ?string $pluginName = null): array
+    {
+        return array_merge_recursive(
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['paths']['global'] ?? [],
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['paths'][$extensionName] ?? [],
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['paths'][$extensionName][$pluginName] ?? []
+        );
     }
 
     /**

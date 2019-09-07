@@ -17,7 +17,7 @@ namespace TYPO3\CMS\Fluid\ViewHelpers\Form;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
 /**
- * Abstract Form ViewHelper. Bundles functionality related to direct property access of objects in other Form ViewHelpers.
+ * Abstract Form View Helper. Bundles functionality related to direct property access of objects in other Form ViewHelpers.
  *
  * If you set the "property" attribute to the name of the property to resolve from the object, this class will
  * automatically set the name and value of a form element.
@@ -83,9 +83,9 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
      *
      * In case property is something like bla.blubb (hierarchical), then [bla][blubb] is generated.
      *
-     * @return string Name
+     * @return string|null Name
      */
-    protected function getName()
+    public function getFormFieldName(): ?string
     {
         $name = $this->getNameWithoutPrefix();
         return $this->prefixFieldName($name);
@@ -109,7 +109,7 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
     protected function getNameWithoutPrefix()
     {
         if ($this->isObjectAccessorMode()) {
-            $formObjectName = $this->viewHelperVariableContainer->get(
+            $formObjectName = $this->renderingContext->getViewHelperVariableContainer()->get(
                 \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
                 'formObjectName'
             );
@@ -244,7 +244,7 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
             return;
         }
 
-        if (!$this->viewHelperVariableContainer->exists(
+        if (!$this->renderingContext->getViewHelperVariableContainer()->exists(
             \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
             'formObject'
         )
@@ -256,11 +256,11 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
         if (count($propertySegments) < 2) {
             return;
         }
-        $formObject = $this->viewHelperVariableContainer->get(
+        $formObject = $this->renderingContext->getViewHelperVariableContainer()->get(
             \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
             'formObject'
         );
-        $objectName = $this->viewHelperVariableContainer->get(
+        $objectName = $this->renderingContext->getViewHelperVariableContainer()->get(
             \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
             'formObjectName'
         );
@@ -271,12 +271,12 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
             $objectName .= '[' . $propertySegments[$i - 1] . ']';
             $hiddenIdentityField = $this->renderHiddenIdentityField($object, $objectName);
             // Add the hidden identity field to the ViewHelperVariableContainer
-            $additionalIdentityProperties = $this->viewHelperVariableContainer->get(
+            $additionalIdentityProperties = $this->renderingContext->getViewHelperVariableContainer()->get(
                 \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
                 'additionalIdentityProperties'
             );
             $additionalIdentityProperties[$objectName] = $hiddenIdentityField;
-            $this->viewHelperVariableContainer->addOrUpdate(
+            $this->renderingContext->getViewHelperVariableContainer()->addOrUpdate(
                 \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
                 'additionalIdentityProperties',
                 $additionalIdentityProperties
@@ -291,14 +291,14 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
      */
     protected function getPropertyValue()
     {
-        if (!$this->viewHelperVariableContainer->exists(
+        if (!$this->renderingContext->getViewHelperVariableContainer()->exists(
             \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
             'formObject'
         )
         ) {
             return null;
         }
-        $formObject = $this->viewHelperVariableContainer->get(
+        $formObject = $this->renderingContext->getViewHelperVariableContainer()->get(
             \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
             'formObject'
         );
@@ -312,14 +312,14 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
      */
     protected function isObjectAccessorMode()
     {
-        return $this->hasArgument('property') && $this->viewHelperVariableContainer->exists(
+        return $this->hasArgument('property') && $this->renderingContext->getViewHelperVariableContainer()->exists(
             \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
             'formObjectName'
         );
     }
 
     /**
-     * Add an CSS class if this ViewHelper has errors
+     * Add an CSS class if this view helper has errors
      */
     protected function setErrorClassAttribute()
     {
@@ -341,7 +341,7 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
     }
 
     /**
-     * Get errors for the property and form name of this ViewHelper
+     * Get errors for the property and form name of this view helper
      *
      * @return \TYPO3\CMS\Extbase\Error\Result Array of errors
      */
@@ -351,7 +351,7 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
             return new \TYPO3\CMS\Extbase\Error\Result();
         }
         $originalRequestMappingResults = $this->getRequest()->getOriginalRequestMappingResults();
-        $formObjectName = $this->viewHelperVariableContainer->get(
+        $formObjectName = $this->renderingContext->getViewHelperVariableContainer()->get(
             \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
             'formObjectName'
         );
@@ -367,23 +367,23 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
     protected function renderHiddenFieldForEmptyValue()
     {
         $hiddenFieldNames = [];
-        if ($this->viewHelperVariableContainer->exists(
+        if ($this->renderingContext->getViewHelperVariableContainer()->exists(
             \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
             'renderedHiddenFields'
         )
         ) {
-            $hiddenFieldNames = $this->viewHelperVariableContainer->get(
+            $hiddenFieldNames = $this->renderingContext->getViewHelperVariableContainer()->get(
                 \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
                 'renderedHiddenFields'
             );
         }
-        $fieldName = $this->getName();
+        $fieldName = $this->getFormFieldName();
         if (substr($fieldName, -2) === '[]') {
             $fieldName = substr($fieldName, 0, -2);
         }
         if (!in_array($fieldName, $hiddenFieldNames)) {
             $hiddenFieldNames[] = $fieldName;
-            $this->viewHelperVariableContainer->addOrUpdate(
+            $this->renderingContext->getViewHelperVariableContainer()->addOrUpdate(
                 \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class,
                 'renderedHiddenFields',
                 $hiddenFieldNames

@@ -15,13 +15,13 @@
 	"repositories": {
 		"typo3/fluid-engine": {
 			"type": "path",
-			"url": "/Users/claus/Repositories/fluidtypo3/fluidtypo3-docker-dev/vendor/typo3fluid/fluid"
+			"url": "https://github.com/NamelessCoder/Fluid.git"
 		}
 	},
 	"require": {
 		"symfony/dependency-injection": "^4.1",
-		"typo3/cms-core": "10.1.*@dev",
-		"typo3/cms-extbase": "10.1.*@dev",
+		"typo3/cms-core": "^10",
+		"typo3/cms-extbase": "^10",
 		"typo3/fluid-engine": "dev-master"
 	},
 	"conflict": {

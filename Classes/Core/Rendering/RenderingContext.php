@@ -38,12 +38,14 @@ class RenderingContext extends \TYPO3Fluid\Fluid\Core\Rendering\RenderingContext
     protected $controllerContext;
 
     /**
-     * @param \TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperVariableContainer $viewHelperVariableContainer
+     * @var string
      */
-    public function injectViewHelperVariableContainer(\TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperVariableContainer $viewHelperVariableContainer)
-    {
-        $this->viewHelperVariableContainer = $viewHelperVariableContainer;
-    }
+    protected $controllerName = 'Default';
+
+    /**
+     * @var string
+     */
+    protected $controllerAction = 'Default';
 
     /**
      * @param ViewInterface $view
@@ -78,7 +80,10 @@ class RenderingContext extends \TYPO3Fluid\Fluid\Core\Rendering\RenderingContext
         if ($dotPosition !== false) {
             $action = substr($action, 0, $dotPosition);
         }
-        $this->controllerContext->getRequest()->setControllerActionName(lcfirst($action));
+        $this->controllerAction = $action;
+        if ($this->controllerContext) {
+            $this->controllerContext->getRequest()->setControllerActionName(lcfirst($action));
+        }
     }
 
     /**
@@ -87,7 +92,10 @@ class RenderingContext extends \TYPO3Fluid\Fluid\Core\Rendering\RenderingContext
      */
     public function setControllerName($controllerName)
     {
-        $this->controllerContext->getRequest()->setControllerName($controllerName);
+        $this->controllerName = $controllerName;
+        if ($this->controllerContext) {
+            $this->controllerContext->getRequest()->setControllerName($controllerName);
+        }
     }
 
     /**
@@ -115,7 +123,7 @@ class RenderingContext extends \TYPO3Fluid\Fluid\Core\Rendering\RenderingContext
      */
     public function getControllerName()
     {
-        return $this->controllerContext ? $this->controllerContext->getRequest()->getControllerName() : 'Default';
+        return $this->controllerContext ? $this->controllerContext->getRequest()->getControllerName() : $this->controllerName;
     }
 
     /**
@@ -123,6 +131,6 @@ class RenderingContext extends \TYPO3Fluid\Fluid\Core\Rendering\RenderingContext
      */
     public function getControllerAction()
     {
-        return $this->controllerContext ? $this->controllerContext->getRequest()->getControllerActionName() : 'Default';
+        return $this->controllerContext ? $this->controllerContext->getRequest()->getControllerActionName() : $this->controllerAction;
     }
 }

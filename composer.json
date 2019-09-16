@@ -22,7 +22,7 @@
 		"symfony/dependency-injection": "^4.1",
 		"typo3/cms-core": "^10",
 		"typo3/cms-extbase": "^10",
-		"typo3/fluid-engine": "dev-gurpgork"
+		"typo3/fluid-engine": "dev-gurpgork as 2.99.99"
 	},
 	"conflict": {
 		"typo3/cms": "*"

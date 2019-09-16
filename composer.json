@@ -14,7 +14,7 @@
 	},
 	"repositories": {
 		"typo3/fluid-engine": {
-			"type": "path",
+			"type": "vcs",
 			"url": "https://github.com/NamelessCoder/Fluid.git"
 		}
 	},
@@ -22,7 +22,7 @@
 		"symfony/dependency-injection": "^4.1",
 		"typo3/cms-core": "^10",
 		"typo3/cms-extbase": "^10",
-		"typo3/fluid-engine": "dev-master"
+		"typo3/fluid-engine": "dev-gurpgork"
 	},
 	"conflict": {
 		"typo3/cms": "*"

@@ -131,7 +131,7 @@ class SelectViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFie
         if (isset($this->arguments['required']) && $this->arguments['required']) {
             $this->tag->addAttribute('required', 'required');
         }
-        $name = $this->getName();
+        $name = $this->getFormFieldName();
         if (isset($this->arguments['multiple']) && $this->arguments['multiple']) {
             $this->tag->addAttribute('multiple', 'multiple');
             $name .= '[]';

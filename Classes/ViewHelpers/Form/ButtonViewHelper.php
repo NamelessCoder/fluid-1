@@ -104,7 +104,7 @@ class ButtonViewHelper extends AbstractFormFieldViewHelper
     public function render()
     {
         $type = $this->arguments['type'];
-        $name = $this->getName();
+        $name = $this->getFormFieldName();
         $this->registerFieldNameForFormTokenGeneration($name);
 
         $this->tag->addAttribute('type', $type);

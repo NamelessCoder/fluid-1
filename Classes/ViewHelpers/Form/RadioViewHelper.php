@@ -100,7 +100,7 @@ class RadioViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFiel
 
         $this->tag->addAttribute('type', 'radio');
 
-        $nameAttribute = $this->getName();
+        $nameAttribute = $this->getFormFieldName();
         $valueAttribute = $this->getValueAttribute();
 
         $propertyValue = null;

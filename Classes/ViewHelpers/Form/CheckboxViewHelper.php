@@ -101,7 +101,7 @@ class CheckboxViewHelper extends AbstractFormFieldViewHelper
 
         $this->tag->addAttribute('type', 'checkbox');
 
-        $nameAttribute = $this->getName();
+        $nameAttribute = $this->getFormFieldName();
         $valueAttribute = $this->getValueAttribute();
         $propertyValue = null;
         if ($this->hasMappingErrorOccurred()) {

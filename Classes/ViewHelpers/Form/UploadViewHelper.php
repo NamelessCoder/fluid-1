@@ -55,7 +55,7 @@ class UploadViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFie
      */
     public function render()
     {
-        $name = $this->getName();
+        $name = $this->getFormFieldName();
         $allowedFields = ['name', 'type', 'tmp_name', 'error', 'size'];
         foreach ($allowedFields as $fieldName) {
             $this->registerFieldNameForFormTokenGeneration($name . '[' . $fieldName . ']');

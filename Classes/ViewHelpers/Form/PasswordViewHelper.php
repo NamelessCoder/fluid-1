@@ -71,7 +71,7 @@ class PasswordViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormF
      */
     public function render()
     {
-        $name = $this->getName();
+        $name = $this->getFormFieldName();
         $this->registerFieldNameForFormTokenGeneration($name);
         $this->setRespectSubmittedDataValue(true);
 

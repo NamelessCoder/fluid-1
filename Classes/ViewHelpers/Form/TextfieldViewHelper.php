@@ -66,7 +66,7 @@ class TextfieldViewHelper extends AbstractFormFieldViewHelper
         $required = $this->arguments['required'] ?? false;
         $type = $this->arguments['type'] ?? null;
 
-        $name = $this->getName();
+        $name = $this->getFormFieldName();
         $this->registerFieldNameForFormTokenGeneration($name);
         $this->setRespectSubmittedDataValue(true);
 

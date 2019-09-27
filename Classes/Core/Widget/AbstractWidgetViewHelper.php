@@ -14,8 +14,8 @@ namespace TYPO3\CMS\Fluid\Core\Widget;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
+use TYPO3Fluid\Fluid\Component\ComponentInterface;
+use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 abstract class AbstractWidgetViewHelper extends AbstractViewHelper
@@ -106,13 +106,14 @@ abstract class AbstractWidgetViewHelper extends AbstractViewHelper
     /**
      * Initialize the arguments of the ViewHelper, and call the render() method of the ViewHelper.
      *
+     * @param RenderingContextInterface $renderingContext
      * @return string the rendered ViewHelper.
      * @internal
      */
-    public function initializeArgumentsAndRender()
+    public function evaluate(RenderingContextInterface $renderingContext)
     {
-        $this->validateArguments();
-        $this->initialize();
+        $this->renderingContext = $renderingContext;
+        $this->getArguments()->setRenderingContext($renderingContext);
         $this->initializeWidgetContext();
         return $this->callRenderMethod();
     }
@@ -141,16 +142,17 @@ abstract class AbstractWidgetViewHelper extends AbstractViewHelper
      * Stores the syntax tree child nodes in the Widget Context, so they can be
      * rendered with <f:widget.renderChildren> lateron.
      *
-     * @param array $childNodes The SyntaxTree Child nodes of this ViewHelper.
+     * @param RenderingContextInterface $renderingContext
+     * @return ComponentInterface
      * @internal
      */
-    public function setChildNodes(array $childNodes)
+    public function onClose(RenderingContextInterface $renderingContext): ComponentInterface
     {
+        $node = parent::onClose($renderingContext);
         $rootNode = $this->objectManager->get(\TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\RootNode::class);
-        foreach ($childNodes as $childNode) {
-            $rootNode->addChildNode($childNode);
-        }
-        $this->widgetContext->setViewHelperChildNodes($rootNode, $this->renderingContext);
+        $rootNode->setChildren($this->getChildren());
+        $this->widgetContext->setViewHelperChildNodes($rootNode, $renderingContext);
+        return $node;
     }
 
     /**
@@ -160,7 +162,7 @@ abstract class AbstractWidgetViewHelper extends AbstractViewHelper
      */
     protected function getWidgetConfiguration()
     {
-        return $this->arguments;
+        return $this->arguments->getArrayCopy();
     }
 
     /**
@@ -216,23 +218,9 @@ abstract class AbstractWidgetViewHelper extends AbstractViewHelper
      */
     private function initializeWidgetIdentifier()
     {
-        $widgetCounter = $this->viewHelperVariableContainer->get(\TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetViewHelper::class, 'nextWidgetNumber', 0);
+        $widgetCounter = $this->renderingContext->getViewHelperVariableContainer()->get(\TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetViewHelper::class, 'nextWidgetNumber', 0);
         $widgetIdentifier = '@widget_' . ((isset($this->arguments['customWidgetId']) && $this->arguments['customWidgetId'] !== null) ? $this->arguments['customWidgetId'] . '_' : '') . $widgetCounter;
-        $this->viewHelperVariableContainer->addOrUpdate(\TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetViewHelper::class, 'nextWidgetNumber', $widgetCounter + 1);
+        $this->renderingContext->getViewHelperVariableContainer()->addOrUpdate(\TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetViewHelper::class, 'nextWidgetNumber', $widgetCounter + 1);
         $this->widgetContext->setWidgetIdentifier($widgetIdentifier);
-    }
-
-    /**
-     * @param string $argumentsName
-     * @param string $closureName
-     * @param string $initializationPhpCode
-     * @param ViewHelperNode $node
-     * @param TemplateCompiler $compiler
-     * @return string
-     */
-    public function compile($argumentsName, $closureName, &$initializationPhpCode, ViewHelperNode $node, TemplateCompiler $compiler)
-    {
-        $compiler->disable();
-        return '\'\'';
     }
 }

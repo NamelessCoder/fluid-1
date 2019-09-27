@@ -154,7 +154,7 @@ class SelectViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFie
             // save the parent field name so that any child f:form.select.option
             // tag will know to call registerFieldNameForFormTokenGeneration
             // this is the reason why "self::class" is used instead of static::class (no LSB)
-            $this->viewHelperVariableContainer->addOrUpdate(
+            $this->renderingContext->getViewHelperVariableContainer()->addOrUpdate(
                 self::class,
                 'registerFieldNameForFormTokenGeneration',
                 $name
@@ -163,12 +163,12 @@ class SelectViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFie
             $this->registerFieldNameForFormTokenGeneration($name);
         }
 
-        $this->viewHelperVariableContainer->addOrUpdate(self::class, 'selectedValue', $this->getSelectedValue());
+        $this->renderingContext->getViewHelperVariableContainer()->addOrUpdate(self::class, 'selectedValue', $this->getSelectedValue());
         $prependContent = $this->renderPrependOptionTag();
         $tagContent = $this->renderOptionTags($options);
         $childContent = $this->renderChildren();
-        $this->viewHelperVariableContainer->remove(self::class, 'selectedValue');
-        $this->viewHelperVariableContainer->remove(self::class, 'registerFieldNameForFormTokenGeneration');
+        $this->renderingContext->getViewHelperVariableContainer()->remove(self::class, 'selectedValue');
+        $this->renderingContext->getViewHelperVariableContainer()->remove(self::class, 'registerFieldNameForFormTokenGeneration');
         if (isset($this->arguments['optionsAfterContent']) && $this->arguments['optionsAfterContent']) {
             $tagContent = $childContent . $tagContent;
         } else {

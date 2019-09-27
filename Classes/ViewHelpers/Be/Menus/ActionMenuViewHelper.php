@@ -14,8 +14,6 @@ namespace TYPO3\CMS\Fluid\ViewHelpers\Be\Menus;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 
 /**
@@ -82,25 +80,9 @@ class ActionMenuViewHelper extends AbstractTagBasedViewHelper
         $this->tag->addAttribute('onchange', 'window.location.href = this.options[this.selectedIndex].value;');
         $options = '';
         foreach ($this->childNodes as $childNode) {
-            if ($childNode instanceof ViewHelperNode) {
-                $options .= $childNode->evaluate($this->renderingContext);
-            }
+            $options .= $childNode->evaluate($this->renderingContext);
         }
         $this->tag->setContent($options);
         return '<div class="docheader-funcmenu">' . $this->tag->render() . '</div>';
-    }
-
-    /**
-     * @param string $argumentsName
-     * @param string $closureName
-     * @param string $initializationPhpCode
-     * @param ViewHelperNode $node
-     * @param TemplateCompiler $compiler
-     */
-    public function compile($argumentsName, $closureName, &$initializationPhpCode, ViewHelperNode $node, TemplateCompiler $compiler)
-    {
-        // @TODO: replace with a true compiling method to make compilable!
-        $compiler->disable();
-        return null;
     }
 }
